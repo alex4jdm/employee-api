@@ -1,0 +1,55 @@
+version: '3'
+services:
+  api:
+    restart: 'no'
+    build: 
+      context: .
+    container_name: employee-api
+    volumes:
+      - .:/usr/src/backend
+      - /usr/src/backend/node_modules
+    depends_on:
+      - postgres
+    ports:
+      - '3004:3000'
+    networks:
+      - ea-network
+  postgres:
+    restart: 'no'
+    image: postgres:13
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '5438:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      -  ea-network
+  pgbackups:
+    image: prodrigestivill/postgres-backup-local
+    restart: 'no'
+    volumes:
+        - /var/opt/pgbackups:/backups
+    links:
+        - postgres
+    depends_on:
+        - postgres
+    environment:
+        - POSTGRES_HOST=${DB_HOST}
+        - POSTGRES_DB=${DB_NAME}
+        - POSTGRES_USER=${DB_USER}
+        - POSTGRES_PASSWORD=${DB_PASSWORD}
+        - POSTGRES_EXTRA_OPTS=-Z9 --schema=public --blobs
+        - SCHEDULE=@daily
+        - BACKUP_KEEP_DAYS=1
+        - BACKUP_KEEP_WEEKS=7
+        - BACKUP_KEEP_MONTHS=4
+    networks:
+        -  ea-network
+networks:
+  ea-network:
+    driver: bridge
+volumes:
+  pgdata:
+

@@ -1,0 +1,6 @@
+export enum EFolders {
+  VIDEOS = 'VIDEOS',
+  INTERNAL = 'INTERNAL',
+  SETTINGS = 'SETTINGS',
+  DEFAULTS = 'DEFAULTS',
+}
